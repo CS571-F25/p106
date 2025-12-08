@@ -1,45 +1,76 @@
-import { Container, Card } from 'react-bootstrap';
+import { Container, Card, Row, Col } from 'react-bootstrap';
 
 function AboutMe() {
   return (
-    <Container className="mt-4">
-      <h1 className="mb-4">About Braindump</h1>
-      <Card className="mb-4">
-        <Card.Body>
-          <Card.Title>Project Overview</Card.Title>
-          <Card.Text>
-            Braindump is a web application designed to help students and
-            researchers organize and synthesize their academic sources through
-            interactive visualization. Rather than discovering new papers,
-            Braindump focuses on making sense of the ones you already have.
-          </Card.Text>
-        </Card.Body>
-      </Card>
-      <Card className="mb-4">
-        <Card.Body>
-          <Card.Title>How It Works</Card.Title>
-          <Card.Text>
-            Users can paste in a list of research paper URLs, DOIs, or upload a
-            reference file. The app automatically retrieves each paper's title,
-            abstract, and metadata, then converts these abstracts into
-            numerical embeddings that capture their semantic meaning. Using these
-            embeddings, the application computes similarity scores between
-            papers and generates a dynamic concept graph.
-          </Card.Text>
-        </Card.Body>
-      </Card>
-      <Card>
-        <Card.Body>
-          <Card.Title>Technology Stack</Card.Title>
-          <Card.Text>
-            Built with React for the frontend and D3.js for interactive graph
-            rendering. The backend uses FastAPI to handle fetching from the
-            Semantic Scholar API and compute text embeddings. Data is stored in
-            PostgreSQL via Supabase.
-          </Card.Text>
-        </Card.Body>
-      </Card>
-    </Container>
+    <div style={{ minHeight: 'calc(100vh - 76px)', background: 'var(--color-bg)' }}>
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col lg={8}>
+            <h1 className="text-center mb-5">About Braindump</h1>
+            
+            <Card className="mb-4 border-0" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F5F0 100%)' }}>
+              <Card.Body className="p-4">
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: 'var(--color-primary)' }}>
+                  The Problem
+                </h4>
+                <p className="text-muted" style={{ lineHeight: 1.8 }}>
+                  Researchers often accumulate dozens or hundreds of papers across different topics. 
+                  Traditional tools like spreadsheets or reference managers help store papers but 
+                  don't reveal the conceptual landscape of your literature. Understanding how papers 
+                  relate to each other - finding clusters, themes, and gaps - remains a manual, 
+                  time-consuming process.
+                </p>
+              </Card.Body>
+            </Card>
+
+            <Card className="mb-4 border-0" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F5F0 100%)' }}>
+              <Card.Body className="p-4">
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: 'var(--color-primary)' }}>
+                  Our Solution
+                </h4>
+                <p className="text-muted" style={{ lineHeight: 1.8 }}>
+                  Braindump uses AI to analyze your research papers and automatically discover 
+                  connections between them. By converting paper abstracts into semantic embeddings, 
+                  we can compute similarity scores and group papers into meaningful clusters. 
+                  The result is a beautiful, interactive concept map that lets you explore your 
+                  literature visually.
+                </p>
+              </Card.Body>
+            </Card>
+
+            <Card className="mb-4 border-0" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F5F0 100%)' }}>
+              <Card.Body className="p-4">
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: 'var(--color-primary)' }}>
+                  How It Works
+                </h4>
+                <ol className="text-muted" style={{ lineHeight: 2 }}>
+                  <li><strong>Upload PDFs</strong> - Add your research papers to a project</li>
+                  <li><strong>AI Analysis</strong> - We extract text and generate semantic embeddings</li>
+                  <li><strong>Clustering</strong> - Papers are grouped by conceptual similarity</li>
+                  <li><strong>Visualization</strong> - Explore connections through an interactive graph</li>
+                  <li><strong>Organization</strong> - Rename clusters, move papers, and refine your understanding</li>
+                </ol>
+              </Card.Body>
+            </Card>
+
+            <Card className="border-0" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F5F0 100%)' }}>
+              <Card.Body className="p-4">
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: 'var(--color-primary)' }}>
+                  Technology
+                </h4>
+                <p className="text-muted" style={{ lineHeight: 1.8 }}>
+                  Built with React and D3.js on the frontend, FastAPI on the backend, and PostgreSQL 
+                  via Supabase for data storage. Paper embeddings are generated using the 
+                  sentence-transformers library (all-MiniLM-L6-v2 model), and clustering is performed 
+                  using K-Means. The 2D visualization coordinates are computed using UMAP dimensionality 
+                  reduction.
+                </p>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 }
 
