@@ -348,16 +348,23 @@ async def get_graph_data(project_id: str, authorization: str = Header(None)):
     # Compute similarity edges
     similarity_matrix = cosine_similarity(embeddings)
     edges = []
-    threshold = 0.5  # Only show edges above this similarity
+    threshold = 0.3  # Lower threshold to show more connections
     
     for i in range(len(papers_with_embeddings)):
         for j in range(i + 1, len(papers_with_embeddings)):
             similarity = float(similarity_matrix[i][j])
-            if similarity > threshold:
+            paper_i = papers_with_embeddings[i]
+            paper_j = papers_with_embeddings[j]
+            
+            # Always connect papers in the same cluster, or if similarity is above threshold
+            same_cluster = (paper_i.get('cluster_id') is not None and 
+                          paper_i.get('cluster_id') == paper_j.get('cluster_id'))
+            
+            if similarity > threshold or same_cluster:
                 edges.append({
-                    "source": papers_with_embeddings[i]['id'],
-                    "target": papers_with_embeddings[j]['id'],
-                    "similarity": similarity
+                    "source": paper_i['id'],
+                    "target": paper_j['id'],
+                    "similarity": max(similarity, 0.4) if same_cluster else similarity
                 })
     
     # Get cluster summaries

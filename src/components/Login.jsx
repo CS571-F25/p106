@@ -86,8 +86,7 @@ function Login() {
             <Tabs 
               activeKey={activeTab} 
               onSelect={setActiveTab} 
-              className="mb-4"
-              style={{ borderBottom: '2px solid var(--color-border)' }}
+              className="mb-4 login-tabs"
             >
               <Tab eventKey="signin" title="Sign In">
                 <Form onSubmit={handleSignIn} className="mt-4">
