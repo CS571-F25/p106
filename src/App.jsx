@@ -2,6 +2,8 @@ import './App.css';
 import { HashRouter, Route, Routes, Navigate } from 'react-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import NavigationBar from './components/NavigationBar';
+import Footer from './components/Footer';
+import LoadingSpinner from './components/LoadingSpinner';
 import Home from './components/Home';
 import AboutMe from './components/AboutMe';
 import Login from './components/Login';
@@ -12,7 +14,7 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   
   if (loading) {
-    return <div className="text-center mt-5">Loading...</div>;
+    return <LoadingSpinner message="Checking authentication..." />;
   }
   
   if (!isAuthenticated) {
@@ -24,30 +26,33 @@ function ProtectedRoute({ children }) {
 
 function AppRoutes() {
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <NavigationBar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/about" element={<AboutMe />} />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/project/:projectId" 
-          element={
-            <ProtectedRoute>
-              <ProjectView />
-            </ProtectedRoute>
-          } 
-        />
-      </Routes>
-    </>
+      <main className="flex-grow-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<AboutMe />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/project/:projectId" 
+            element={
+              <ProtectedRoute>
+                <ProjectView />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
   );
 }
 
