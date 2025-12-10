@@ -226,7 +226,7 @@ function ProjectView() {
         <Col lg={8}>
           <Card className="mb-4" style={{ border: 'none', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <Card.Header className="d-flex justify-content-between align-items-center" style={{ background: '#fff', borderBottom: '1px solid var(--color-border)' }}>
-              <h5 className="mb-0">Concept Map</h5>
+              <h2 className="mb-0" style={{ fontSize: '1.25rem' }}>Concept Map</h2>
               <Badge bg="light" text="dark" style={{ fontWeight: 500 }}>{papers.length} papers</Badge>
             </Card.Header>
             <Card.Body className="p-0" style={{ height: '550px', background: 'linear-gradient(180deg, #FDFCFA 0%, #F5F2ED 100%)' }}>
@@ -236,7 +236,7 @@ function ProjectView() {
                 <div className="d-flex align-items-center justify-content-center h-100">
                   <div className="text-center p-4">
                     <div style={{ marginBottom: '1rem', opacity: 0.3, color: 'var(--color-text-muted)' }}><GraphIcon /></div>
-                    <h5 className="text-muted">Your concept map will appear here</h5>
+                    <h3 className="text-muted" style={{ fontSize: '1.1rem' }}>Your concept map will appear here</h3>
                     <p className="text-muted small mb-0">Upload at least 2 PDFs and click "Analyze & Cluster"</p>
                   </div>
                 </div>
@@ -248,7 +248,7 @@ function ProjectView() {
         <Col lg={4}>
           <Card style={{ border: 'none', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <Card.Header style={{ background: '#fff', borderBottom: '1px solid var(--color-border)' }}>
-              <h5 className="mb-0">Research Clusters</h5>
+              <h2 className="mb-0" style={{ fontSize: '1.25rem' }}>Research Clusters</h2>
             </Card.Header>
             <Card.Body style={{ maxHeight: '550px', overflowY: 'auto' }}>
               {clusterIds.length === 0 && unclusteredPapers.length === 0 ? (
@@ -316,8 +316,16 @@ function ProjectView() {
         <Form onSubmit={handleUpload}>
           <Modal.Body>
             <Form.Group className="mb-4">
-              <Form.Label>PDF File</Form.Label>
-              <div className="border rounded p-4 text-center" style={{ borderStyle: 'dashed', backgroundColor: 'var(--color-bg)', cursor: 'pointer' }} onClick={() => document.getElementById('pdf-input').click()}>
+              <Form.Label htmlFor="pdf-input">PDF File</Form.Label>
+              <div 
+                className="border rounded p-4 text-center" 
+                style={{ borderStyle: 'dashed', backgroundColor: 'var(--color-bg)', cursor: 'pointer' }} 
+                onClick={() => document.getElementById('pdf-input').click()}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('pdf-input').click(); } }}
+                tabIndex="0"
+                role="button"
+                aria-label={uploadFile ? `Selected file: ${uploadFile.name}. Press Enter to change file.` : 'Click or press Enter to select a PDF file'}
+              >
                 {uploadFile ? (
                   <div>
                     <div style={{ marginBottom: '0.5rem', color: 'var(--color-primary)' }}><FileIcon /></div>
@@ -330,8 +338,9 @@ function ProjectView() {
                     <div className="text-muted">Click to select a PDF file</div>
                   </div>
                 )}
-                <Form.Control id="pdf-input" type="file" accept=".pdf" onChange={(e) => setUploadFile(e.target.files[0])} style={{ display: 'none' }} />
+                <Form.Control id="pdf-input" type="file" accept=".pdf" onChange={(e) => setUploadFile(e.target.files[0])} className="visually-hidden" aria-describedby="pdf-help" />
               </div>
+              <Form.Text id="pdf-help" className="text-muted">Supported format: PDF</Form.Text>
             </Form.Group>
             <Form.Group>
               <Form.Label>Paper Title (optional)</Form.Label>
@@ -362,7 +371,7 @@ function ProjectView() {
               </div>
               {selectedPaper.abstract && (
                 <div>
-                  <h6 className="mb-2">Abstract</h6>
+                  <h3 className="mb-2" style={{ fontSize: '1rem' }}>Abstract</h3>
                   <div className="p-3 rounded" style={{ backgroundColor: 'var(--color-bg)', lineHeight: 1.7, fontSize: '0.95rem', maxHeight: '350px', overflowY: 'auto' }}>{selectedPaper.abstract}</div>
                 </div>
               )}

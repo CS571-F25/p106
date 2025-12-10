@@ -147,7 +147,7 @@ function AboutMe() {
                 }}>
                   <CodeIcon />
                 </div>
-                <h5 style={{ fontFamily: "'Playfair Display', serif" }}>Frontend</h5>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Frontend</h3>
                 <p className="text-muted small mb-0">
                   React with Vite for blazing fast development. D3.js powers our interactive visualizations.
                 </p>
@@ -165,7 +165,7 @@ function AboutMe() {
                 }}>
                   <ServerIcon />
                 </div>
-                <h5 style={{ fontFamily: "'Playfair Display', serif" }}>Backend</h5>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Backend</h3>
                 <p className="text-muted small mb-0">
                   FastAPI (Python) handles requests with async speed. Clean REST API architecture.
                 </p>
@@ -183,7 +183,7 @@ function AboutMe() {
                 }}>
                   <DatabaseIcon />
                 </div>
-                <h5 style={{ fontFamily: "'Playfair Display', serif" }}>Database</h5>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Database</h3>
                 <p className="text-muted small mb-0">
                   Supabase provides PostgreSQL with real-time capabilities and built-in auth.
                 </p>
@@ -201,7 +201,7 @@ function AboutMe() {
                 }}>
                   <CpuIcon />
                 </div>
-                <h5 style={{ fontFamily: "'Playfair Display', serif" }}>ML/AI</h5>
+                <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>ML/AI</h3>
                 <p className="text-muted small mb-0">
                   Sentence Transformers generate embeddings. K-Means & UMAP for clustering and projection.
                 </p>
@@ -218,7 +218,7 @@ function AboutMe() {
       }}>
         <Container>
           <div className="text-center mb-4 scroll-animate">
-            <h3 style={{ marginBottom: '0.5rem' }}>Tech Stack</h3>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '1.5rem' }}>Tech Stack</h2>
             <p className="text-muted">The building blocks of Braindump</p>
           </div>
           <div className="d-flex flex-wrap justify-content-center gap-3 scroll-animate" style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -266,36 +266,36 @@ function AboutMe() {
           <Col lg={6} className="scroll-animate-left">
             <h2 style={{ marginBottom: '1.5rem' }}>The Algorithm</h2>
             <div className="mb-4">
-              <h5 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
+              <h3 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
                 1. Text Extraction
-              </h5>
+              </h3>
               <p className="text-muted">
                 We extract text from your PDFs using PyPDF2, then clean and isolate abstracts using 
                 pattern matching and heuristics.
               </p>
             </div>
             <div className="mb-4">
-              <h5 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
+              <h3 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
                 2. Semantic Embeddings
-              </h5>
+              </h3>
               <p className="text-muted">
                 Each paper's abstract is converted to a 384-dimensional vector using the 
                 all-MiniLM-L6-v2 sentence transformer model.
               </p>
             </div>
             <div className="mb-4">
-              <h5 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
+              <h3 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
                 3. Clustering
-              </h5>
+              </h3>
               <p className="text-muted">
                 K-Means clustering groups papers by semantic similarity. We automatically 
                 determine the optimal number of clusters using silhouette analysis.
               </p>
             </div>
             <div>
-              <h5 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
+              <h3 style={{ color: 'var(--color-primary)', fontFamily: 'DM Sans', fontWeight: 600, fontSize: '1rem' }}>
                 4. Visualization
-              </h5>
+              </h3>
               <p className="text-muted">
                 UMAP projects high-dimensional embeddings to 2D while preserving local structure, 
                 creating meaningful spatial relationships on the map.
@@ -377,9 +377,9 @@ function AboutMe() {
         padding: '4rem 0'
       }}>
         <Container className="text-center scroll-animate">
-          <h3 style={{ color: 'var(--color-accent-light)', marginBottom: '1rem' }}>
+          <h2 style={{ color: 'var(--color-accent-light)', marginBottom: '1rem', fontSize: '1.5rem' }}>
             Built for Researchers
-          </h3>
+          </h2>
           <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '500px', margin: '0 auto' }}>
             Braindump is a project developed as part of CS571 coursework, 
             designed to help researchers organize their literature more effectively.
