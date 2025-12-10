@@ -7,28 +7,44 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
 import os
+import requests
 
 router = APIRouter()
 
-# Lazy load the embedding model
-_model = None
-
-def get_embedding_model():
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
-        _model = SentenceTransformer('all-MiniLM-L6-v2')
-    return _model
+HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
 
 def generate_embedding(text: str) -> List[float]:
-    model = get_embedding_model()
-    embedding = model.encode(text, convert_to_numpy=True)
-    return embedding.tolist()
+    """Generate embeddings using Hugging Face Inference API (free)."""
+    hf_token = os.getenv("HF_TOKEN", "")
+    headers = {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
+    
+    try:
+        response = requests.post(
+            HF_API_URL,
+            headers=headers,
+            json={"inputs": text, "options": {"wait_for_model": True}},
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            embedding = response.json()
+            if isinstance(embedding, list) and len(embedding) > 0:
+                if isinstance(embedding[0], list):
+                    return embedding[0]
+                return embedding
+        
+        print(f"HF API error: {response.status_code} - {response.text}")
+        return None
+    except Exception as e:
+        print(f"Embedding error: {e}")
+        return None
 
-def compute_umap_projection(embeddings: np.ndarray) -> np.ndarray:
+def compute_2d_projection(embeddings: np.ndarray) -> np.ndarray:
+    """Project high-dimensional embeddings to 2D using PCA."""
+    from sklearn.decomposition import PCA
+    
     n_samples = len(embeddings)
     
-    # If we have very few samples, just spread them out manually
     if n_samples <= 2:
         positions = np.zeros((n_samples, 2))
         for i in range(n_samples):
@@ -36,30 +52,23 @@ def compute_umap_projection(embeddings: np.ndarray) -> np.ndarray:
         return positions
     
     try:
-        # Check if embeddings have variance (not all identical)
         if np.allclose(embeddings, embeddings[0]):
-            # All embeddings are the same, spread them in a circle
             positions = np.zeros((n_samples, 2))
             for i in range(n_samples):
                 angle = 2 * np.pi * i / n_samples
                 positions[i] = [300 + 200 * np.cos(angle), 300 + 200 * np.sin(angle)]
             return positions
         
-        from umap import UMAP
-        if n_samples < 5:
-            from sklearn.decomposition import PCA
-            pca = PCA(n_components=min(2, n_samples - 1))
-            result = pca.fit_transform(embeddings)
-            if result.shape[1] == 1:
-                result = np.column_stack([result, np.zeros(n_samples)])
-            return result
+        n_components = min(2, n_samples - 1, embeddings.shape[1])
+        pca = PCA(n_components=n_components)
+        result = pca.fit_transform(embeddings)
         
-        n_neighbors = min(15, n_samples - 1)
-        reducer = UMAP(n_components=2, n_neighbors=n_neighbors, min_dist=0.1, random_state=42)
-        return reducer.fit_transform(embeddings)
+        if result.shape[1] == 1:
+            result = np.column_stack([result, np.zeros(n_samples)])
+        
+        return result
     except Exception as e:
-        print(f"UMAP/PCA error: {e}")
-        # Fallback: spread in a grid
+        print(f"PCA error: {e}")
         positions = np.zeros((n_samples, 2))
         cols = int(np.ceil(np.sqrt(n_samples)))
         for i in range(n_samples):
@@ -182,8 +191,9 @@ async def cluster_papers(project_id: str, authorization: str = Header(None)):
             text = f"{paper.get('title', '')} {paper.get('abstract', '')}"
             if text.strip():
                 embedding = generate_embedding(text)
-                supabase.table("papers").update({"embedding": embedding}).eq("id", paper['id']).execute()
-                paper['embedding'] = embedding
+                if embedding:
+                    supabase.table("papers").update({"embedding": embedding}).eq("id", paper['id']).execute()
+                    paper['embedding'] = embedding
         updated_papers.append(paper)
     
     # Filter papers with embeddings
@@ -324,8 +334,8 @@ async def get_graph_data(project_id: str, authorization: str = Header(None)):
     
     embeddings = np.array([p['embedding'] for p in papers_with_embeddings])
     
-    # Compute 2D positions using UMAP
-    positions = compute_umap_projection(embeddings)
+    # Compute 2D positions using PCA
+    positions = compute_2d_projection(embeddings)
     
     # Normalize positions to a reasonable range
     positions = (positions - positions.min(axis=0)) / (positions.max(axis=0) - positions.min(axis=0) + 1e-6)
