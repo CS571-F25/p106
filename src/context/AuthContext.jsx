@@ -2,7 +2,10 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+const API_URL = isProduction 
+  ? 'https://braindump-api-production.up.railway.app' 
+  : (import.meta.env.VITE_API_URL || 'http://localhost:8000');
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
