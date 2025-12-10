@@ -15,6 +15,10 @@ HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/s
 
 def generate_embedding(text: str) -> List[float]:
     """Generate embeddings using Hugging Face Inference API (free)."""
+    if not text or len(text.strip()) < 10:
+        print(f"Text too short for embedding: {len(text) if text else 0} chars")
+        return None
+    
     hf_token = os.getenv("HF_TOKEN", "")
     headers = {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
     
@@ -23,20 +27,47 @@ def generate_embedding(text: str) -> List[float]:
             HF_API_URL,
             headers=headers,
             json={"inputs": text, "options": {"wait_for_model": True}},
-            timeout=30
+            timeout=60
         )
         
         if response.status_code == 200:
             embedding = response.json()
             if isinstance(embedding, list) and len(embedding) > 0:
                 if isinstance(embedding[0], list):
-                    return embedding[0]
-                return embedding
+                    result = embedding[0]
+                else:
+                    result = embedding
+                
+                if isinstance(result, list) and len(result) > 0:
+                    print(f"Successfully generated embedding: {len(result)} dimensions")
+                    return result
         
-        print(f"HF API error: {response.status_code} - {response.text}")
+        print(f"HF API error: {response.status_code} - {response.text[:200]}")
+        
+        # If model is loading, try once more after a delay
+        if response.status_code == 503:
+            import time
+            print("Model loading, waiting 10 seconds...")
+            time.sleep(10)
+            response = requests.post(
+                HF_API_URL,
+                headers=headers,
+                json={"inputs": text, "options": {"wait_for_model": True}},
+                timeout=60
+            )
+            if response.status_code == 200:
+                embedding = response.json()
+                if isinstance(embedding, list) and len(embedding) > 0:
+                    if isinstance(embedding[0], list):
+                        return embedding[0]
+                    return embedding
+        
+        return None
+    except requests.exceptions.Timeout:
+        print("HF API timeout - model may be loading")
         return None
     except Exception as e:
-        print(f"Embedding error: {e}")
+        print(f"Embedding error: {type(e).__name__}: {e}")
         return None
 
 def compute_2d_projection(embeddings: np.ndarray) -> np.ndarray:
@@ -186,21 +217,46 @@ async def cluster_papers(project_id: str, authorization: str = Header(None)):
     
     # Generate embeddings for papers that don't have them
     updated_papers = []
+    failed_papers = []
+    
     for paper in papers:
         if not paper.get('embedding'):
-            text = f"{paper.get('title', '')} {paper.get('abstract', '')}"
-            if text.strip():
-                embedding = generate_embedding(text)
-                if embedding:
+            title = paper.get('title', '') or ''
+            abstract = paper.get('abstract', '') or ''
+            text = f"{title} {abstract}".strip()
+            
+            if not text or len(text) < 10:
+                print(f"Paper {paper.get('id', 'unknown')} has no text content (title: {len(title)} chars, abstract: {len(abstract)} chars)")
+                failed_papers.append(paper.get('title', 'Untitled'))
+                continue
+            
+            print(f"Generating embedding for paper: {paper.get('title', 'Untitled')[:50]}...")
+            embedding = generate_embedding(text)
+            
+            if embedding and len(embedding) > 0:
+                try:
                     supabase.table("papers").update({"embedding": embedding}).eq("id", paper['id']).execute()
                     paper['embedding'] = embedding
+                    print(f"✓ Embedding saved for: {paper.get('title', 'Untitled')[:50]}")
+                except Exception as e:
+                    print(f"✗ Failed to save embedding: {e}")
+                    failed_papers.append(paper.get('title', 'Untitled'))
+            else:
+                print(f"✗ Failed to generate embedding for: {paper.get('title', 'Untitled')[:50]}")
+                failed_papers.append(paper.get('title', 'Untitled'))
+        
         updated_papers.append(paper)
     
     # Filter papers with embeddings
     papers_with_embeddings = [p for p in updated_papers if p.get('embedding')]
     
+    print(f"Total papers: {len(papers)}, Papers with embeddings: {len(papers_with_embeddings)}")
+    
     if len(papers_with_embeddings) < 2:
-        raise HTTPException(status_code=400, detail="Not enough papers with text content to cluster")
+        error_msg = f"Not enough papers with text content to cluster. Only {len(papers_with_embeddings)} out of {len(papers)} papers have embeddings."
+        if failed_papers:
+            error_msg += f" Failed papers: {', '.join(failed_papers[:5])}"
+        raise HTTPException(status_code=400, detail=error_msg)
     
     embeddings = np.array([p['embedding'] for p in papers_with_embeddings])
     n_papers = len(papers_with_embeddings)
