@@ -6,15 +6,42 @@ from routers.auth import get_current_user
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 import requests
+import hashlib
 
 router = APIRouter()
 
 HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
 
+def generate_simple_embedding(text: str, dim: int = 384) -> List[float]:
+    """Fallback: Generate simple hash-based embedding when HF API fails."""
+    import re
+    from collections import Counter
+    
+    # Tokenize and normalize
+    words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
+    word_counts = Counter(words)
+    
+    # Create a hash-based feature vector
+    embedding = [0.0] * dim
+    for word, count in word_counts.items():
+        # Hash word to a position in the vector
+        hash_val = int(hashlib.md5(word.encode()).hexdigest(), 16)
+        idx = hash_val % dim
+        # Add weighted count (log scale to reduce impact of very common words)
+        embedding[idx] += np.log1p(count)
+    
+    # Normalize
+    norm = np.linalg.norm(embedding)
+    if norm > 0:
+        embedding = [x / norm for x in embedding]
+    
+    return embedding
+
 def generate_embedding(text: str) -> List[float]:
-    """Generate embeddings using Hugging Face Inference API (free)."""
+    """Generate embeddings using Hugging Face Inference API (free), with fallback."""
     if not text or len(text.strip()) < 10:
         print(f"Text too short for embedding: {len(text) if text else 0} chars")
         return None
@@ -22,12 +49,13 @@ def generate_embedding(text: str) -> List[float]:
     hf_token = os.getenv("HF_TOKEN", "")
     headers = {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
     
+    # Try HuggingFace API first
     try:
         response = requests.post(
             HF_API_URL,
             headers=headers,
             json={"inputs": text, "options": {"wait_for_model": True}},
-            timeout=60
+            timeout=30
         )
         
         if response.status_code == 200:
@@ -39,36 +67,39 @@ def generate_embedding(text: str) -> List[float]:
                     result = embedding
                 
                 if isinstance(result, list) and len(result) > 0:
-                    print(f"Successfully generated embedding: {len(result)} dimensions")
+                    print(f"✓ HF API embedding: {len(result)} dimensions")
                     return result
         
-        print(f"HF API error: {response.status_code} - {response.text[:200]}")
+        print(f"HF API error {response.status_code}: {response.text[:200]}")
         
-        # If model is loading, try once more after a delay
+        # If model is loading (503), wait and retry once
         if response.status_code == 503:
             import time
-            print("Model loading, waiting 10 seconds...")
-            time.sleep(10)
+            print("Model loading, waiting 15 seconds...")
+            time.sleep(15)
             response = requests.post(
                 HF_API_URL,
                 headers=headers,
                 json={"inputs": text, "options": {"wait_for_model": True}},
-                timeout=60
+                timeout=30
             )
             if response.status_code == 200:
                 embedding = response.json()
                 if isinstance(embedding, list) and len(embedding) > 0:
                     if isinstance(embedding[0], list):
+                        print(f"✓ HF API embedding (retry): {len(embedding[0])} dimensions")
                         return embedding[0]
+                    print(f"✓ HF API embedding (retry): {len(embedding)} dimensions")
                     return embedding
         
-        return None
     except requests.exceptions.Timeout:
-        print("HF API timeout - model may be loading")
-        return None
+        print("HF API timeout - using fallback embedding")
     except Exception as e:
-        print(f"Embedding error: {type(e).__name__}: {e}")
-        return None
+        print(f"HF API error ({type(e).__name__}): {e} - using fallback embedding")
+    
+    # Fallback to simple embedding
+    print("Using fallback hash-based embedding")
+    return generate_simple_embedding(text)
 
 def compute_2d_projection(embeddings: np.ndarray) -> np.ndarray:
     """Project high-dimensional embeddings to 2D using PCA."""
