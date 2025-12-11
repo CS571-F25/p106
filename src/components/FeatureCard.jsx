@@ -12,11 +12,9 @@ function FeatureCard({ icon: Icon, title, description, iconBackground, iconColor
           style={{ 
             background: iconBackground, 
             color: iconColor 
-          }} 
-          aria-label={`${title} icon`}
-          role="img"
+          }}
         >
-          <Icon aria-hidden="true" />
+          <Icon />
         </div>
         <Card.Title 
           as="h3" 

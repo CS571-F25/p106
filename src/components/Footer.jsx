@@ -5,8 +5,8 @@ function Footer() {
   
   return (
     <footer style={{
-      background: 'var(--color-bg-dark)',
-      color: 'rgba(255,255,255,0.7)',
+      background: '#FFFFFF',
+      borderTop: '1px solid var(--color-border)',
       padding: '2rem 0',
       marginTop: 'auto'
     }}>
@@ -16,19 +16,19 @@ function Footer() {
             <span style={{ 
               fontFamily: "'Playfair Display', serif", 
               fontSize: '1.25rem',
-              color: 'var(--color-accent-light)'
+              color: 'var(--color-primary)'
             }}>
               Braindump
             </span>
-            <p className="mb-0 mt-1" style={{ fontSize: '0.85rem' }}>
+            <p className="mb-0 mt-1" style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
               Organize your research, visually.
             </p>
           </div>
           <div className="text-center text-md-end">
-            <p className="mb-1" style={{ fontSize: '0.85rem' }}>
+            <p className="mb-1" style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
               Built for CS571 coursework
             </p>
-            <p className="mb-0" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.85)' }}>
+            <p className="mb-0" style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
               {currentYear} All rights reserved.
             </p>
           </div>

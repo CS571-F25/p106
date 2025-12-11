@@ -3,14 +3,14 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 
 // SVG Icons
 const CodeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }} aria-label="Code icon" role="img">
     <polyline points="16 18 22 12 16 6"></polyline>
     <polyline points="8 6 2 12 8 18"></polyline>
   </svg>
 );
 
 const ServerIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }} aria-label="Server icon" role="img">
     <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
     <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
     <line x1="6" y1="6" x2="6.01" y2="6"></line>
@@ -19,7 +19,7 @@ const ServerIcon = () => (
 );
 
 const DatabaseIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }} aria-label="Database icon" role="img">
     <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
     <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
     <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
@@ -27,7 +27,7 @@ const DatabaseIcon = () => (
 );
 
 const CpuIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }}>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 28, height: 28 }} aria-label="CPU or processor icon" role="img">
     <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
     <rect x="9" y="9" width="6" height="6"></rect>
     <line x1="9" y1="1" x2="9" y2="4"></line>
@@ -146,10 +146,8 @@ function AboutMe() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     margin: '0 auto 1rem', color: '#2D5A4A'
                   }}
-                  aria-label="Frontend code icon"
-                  role="img"
                 >
-                  <CodeIcon aria-hidden="true" />
+                  <CodeIcon />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Frontend</h3>
                 <p className="text-muted small mb-0">
@@ -168,10 +166,8 @@ function AboutMe() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     margin: '0 auto 1rem', color: '#3D47A3'
                   }}
-                  aria-label="Backend server icon"
-                  role="img"
                 >
-                  <ServerIcon aria-hidden="true" />
+                  <ServerIcon />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Backend</h3>
                 <p className="text-muted small mb-0">
@@ -190,10 +186,8 @@ function AboutMe() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     margin: '0 auto 1rem', color: '#E65100'
                   }}
-                  aria-label="Database icon"
-                  role="img"
                 >
-                  <DatabaseIcon aria-hidden="true" />
+                  <DatabaseIcon />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Database</h3>
                 <p className="text-muted small mb-0">
@@ -212,10 +206,8 @@ function AboutMe() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     margin: '0 auto 1rem', color: '#AD1457'
                   }}
-                  aria-label="Machine learning and AI icon"
-                  role="img"
                 >
-                  <CpuIcon aria-hidden="true" />
+                  <CpuIcon />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>ML/AI</h3>
                 <p className="text-muted small mb-0">

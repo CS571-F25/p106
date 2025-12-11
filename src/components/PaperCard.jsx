@@ -43,3 +43,4 @@ function PaperCard({ paper, onClick, onDelete }) {
 
 export default PaperCard;
 
+
