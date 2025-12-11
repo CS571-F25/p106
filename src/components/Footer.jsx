@@ -28,7 +28,7 @@ function Footer() {
             <p className="mb-1" style={{ fontSize: '0.85rem' }}>
               Built for CS571 coursework
             </p>
-            <p className="mb-0" style={{ fontSize: '0.8rem', opacity: 0.6 }}>
+            <p className="mb-0" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.85)' }}>
               {currentYear} All rights reserved.
             </p>
           </div>
@@ -39,4 +39,5 @@ function Footer() {
 }
 
 export default Footer;
+
 
