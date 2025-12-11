@@ -453,15 +453,17 @@ async def get_graph_data(project_id: str, authorization: str = Header(None)):
             paper_i = papers_with_embeddings[i]
             paper_j = papers_with_embeddings[j]
             
-            # Always connect papers in the same cluster, or if similarity is above threshold
-            same_cluster = (paper_i.get('cluster_id') is not None and 
-                          paper_i.get('cluster_id') == paper_j.get('cluster_id'))
+            # Only connect papers in DIFFERENT clusters if similarity is above threshold
+            cluster_i = paper_i.get('cluster_id')
+            cluster_j = paper_j.get('cluster_id')
+            different_cluster = (cluster_i is not None and cluster_j is not None and 
+                               cluster_i != cluster_j)
             
-            if similarity > threshold or same_cluster:
+            if similarity > threshold and different_cluster:
                 edges.append({
                     "source": paper_i['id'],
                     "target": paper_j['id'],
-                    "similarity": max(similarity, 0.4) if same_cluster else similarity
+                    "similarity": similarity
                 })
     
     # Get cluster summaries
