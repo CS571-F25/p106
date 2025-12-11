@@ -139,13 +139,17 @@ function AboutMe() {
           <Col md={6} lg={3}>
             <Card className="h-100 scroll-animate" style={{ transitionDelay: '0s' }}>
               <Card.Body className="text-center p-4">
-                <div style={{ 
-                  width: 60, height: 60, borderRadius: 12,
-                  background: 'linear-gradient(135deg, #E8F5F2 0%, #B8D8D0 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 1rem', color: '#2D5A4A'
-                }}>
-                  <CodeIcon />
+                <div 
+                  style={{ 
+                    width: 60, height: 60, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #E8F5F2 0%, #B8D8D0 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem', color: '#2D5A4A'
+                  }}
+                  aria-label="Frontend code icon"
+                  role="img"
+                >
+                  <CodeIcon aria-hidden="true" />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Frontend</h3>
                 <p className="text-muted small mb-0">
@@ -157,13 +161,17 @@ function AboutMe() {
           <Col md={6} lg={3}>
             <Card className="h-100 scroll-animate" style={{ transitionDelay: '0.1s' }}>
               <Card.Body className="text-center p-4">
-                <div style={{ 
-                  width: 60, height: 60, borderRadius: 12,
-                  background: 'linear-gradient(135deg, #E8EAF6 0%, #9FA8DA 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 1rem', color: '#3D47A3'
-                }}>
-                  <ServerIcon />
+                <div 
+                  style={{ 
+                    width: 60, height: 60, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #E8EAF6 0%, #9FA8DA 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem', color: '#3D47A3'
+                  }}
+                  aria-label="Backend server icon"
+                  role="img"
+                >
+                  <ServerIcon aria-hidden="true" />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Backend</h3>
                 <p className="text-muted small mb-0">
@@ -175,13 +183,17 @@ function AboutMe() {
           <Col md={6} lg={3}>
             <Card className="h-100 scroll-animate" style={{ transitionDelay: '0.2s' }}>
               <Card.Body className="text-center p-4">
-                <div style={{ 
-                  width: 60, height: 60, borderRadius: 12,
-                  background: 'linear-gradient(135deg, #FFF8E1 0%, #FFCC80 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 1rem', color: '#E65100'
-                }}>
-                  <DatabaseIcon />
+                <div 
+                  style={{ 
+                    width: 60, height: 60, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #FFF8E1 0%, #FFCC80 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem', color: '#E65100'
+                  }}
+                  aria-label="Database icon"
+                  role="img"
+                >
+                  <DatabaseIcon aria-hidden="true" />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>Database</h3>
                 <p className="text-muted small mb-0">
@@ -193,13 +205,17 @@ function AboutMe() {
           <Col md={6} lg={3}>
             <Card className="h-100 scroll-animate" style={{ transitionDelay: '0.3s' }}>
               <Card.Body className="text-center p-4">
-                <div style={{ 
-                  width: 60, height: 60, borderRadius: 12,
-                  background: 'linear-gradient(135deg, #FCE4EC 0%, #F48FB1 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 1rem', color: '#AD1457'
-                }}>
-                  <CpuIcon />
+                <div 
+                  style={{ 
+                    width: 60, height: 60, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #FCE4EC 0%, #F48FB1 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1rem', color: '#AD1457'
+                  }}
+                  aria-label="Machine learning and AI icon"
+                  role="img"
+                >
+                  <CpuIcon aria-hidden="true" />
                 </div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.1rem' }}>ML/AI</h3>
                 <p className="text-muted small mb-0">
@@ -309,8 +325,13 @@ function AboutMe() {
               padding: '2rem',
               boxShadow: '0 20px 60px rgba(0,0,0,0.08)'
             }}>
-              <svg viewBox="0 0 300 250" style={{ width: '100%' }}>
-                {/* Flow diagram */}
+              <svg 
+                viewBox="0 0 300 250" 
+                style={{ width: '100%' }}
+                aria-label="Algorithm flow diagram showing the process from PDF upload through text extraction, semantic embedding, K-Means clustering, UMAP projection, to final graph visualization"
+                role="img"
+              >
+                <title>Algorithm Flow: PDF → Embedding → Clustering → Visualization</title>
                 <defs>
                   <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                     <polygon points="0 0, 10 3.5, 0 7" fill="#8B7355" />

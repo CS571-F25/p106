@@ -13,9 +13,10 @@ function FeatureCard({ icon: Icon, title, description, iconBackground, iconColor
             background: iconBackground, 
             color: iconColor 
           }} 
-          aria-hidden="true"
+          aria-label={`${title} icon`}
+          role="img"
         >
-          <Icon />
+          <Icon aria-hidden="true" />
         </div>
         <Card.Title 
           as="h3" 
@@ -32,4 +33,5 @@ function FeatureCard({ icon: Icon, title, description, iconBackground, iconColor
 }
 
 export default FeatureCard;
+
 
