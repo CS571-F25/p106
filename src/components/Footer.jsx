@@ -16,19 +16,19 @@ function Footer() {
             <span style={{ 
               fontFamily: "'Playfair Display', serif", 
               fontSize: '1.25rem',
-              color: 'var(--color-primary)'
+              color: '#000000'
             }}>
               Braindump
             </span>
-            <p className="mb-0 mt-1" style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            <p className="mb-0 mt-1" style={{ fontSize: '0.85rem', color: '#000000' }}>
               Organize your research, visually.
             </p>
           </div>
           <div className="text-center text-md-end">
-            <p className="mb-1" style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            <p className="mb-1" style={{ fontSize: '0.85rem', color: '#000000' }}>
               Built for CS571 coursework
             </p>
-            <p className="mb-0" style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+            <p className="mb-0" style={{ fontSize: '0.8rem', color: '#000000' }}>
               {currentYear} All rights reserved.
             </p>
           </div>
