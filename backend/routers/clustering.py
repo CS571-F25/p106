@@ -292,6 +292,40 @@ async def cluster_papers(project_id: str, authorization: str = Header(None)):
     embeddings = np.array([p['embedding'] for p in papers_with_embeddings])
     n_papers = len(papers_with_embeddings)
     
+    # Enhanced clustering: Use hybrid approach with TF-IDF + semantic embeddings
+    # This improves accuracy for cases like food vs climate change
+    print(f"Computing hybrid embeddings for {n_papers} papers...")
+    
+    # Get TF-IDF features as additional signal
+    texts = []
+    for paper in papers_with_embeddings:
+        title = paper.get('title', '') or ''
+        abstract = paper.get('abstract', '') or ''
+        texts.append(f"{title} {abstract}".strip())
+    
+    try:
+        vectorizer = TfidfVectorizer(max_features=100, stop_words='english', min_df=1)
+        tfidf_matrix = vectorizer.fit_transform(texts).toarray()
+        
+        # Combine semantic embeddings with TF-IDF features
+        # Normalize both to similar scales
+        tfidf_norm = tfidf_matrix / (np.linalg.norm(tfidf_matrix, axis=1, keepdims=True) + 1e-8)
+        embedding_norm = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
+        
+        # Weighted combination: 70% semantic, 30% TF-IDF
+        # Pad TF-IDF to match embedding dimension if needed
+        if tfidf_norm.shape[1] < embedding_norm.shape[1]:
+            padding = np.zeros((tfidf_norm.shape[0], embedding_norm.shape[1] - tfidf_norm.shape[1]))
+            tfidf_padded = np.hstack([tfidf_norm, padding])
+        else:
+            tfidf_padded = tfidf_norm[:, :embedding_norm.shape[1]]
+        
+        hybrid_embeddings = 0.7 * embedding_norm + 0.3 * tfidf_padded
+        print("✓ Using hybrid embeddings (semantic + TF-IDF)")
+    except Exception as e:
+        print(f"TF-IDF failed ({e}), using semantic embeddings only")
+        hybrid_embeddings = embeddings
+    
     # Find optimal number of clusters using silhouette score
     from sklearn.metrics import silhouette_score
     
@@ -303,27 +337,68 @@ async def cluster_papers(project_id: str, authorization: str = Header(None)):
         if n_samples < 2:
             return 1, np.zeros(n_samples, dtype=int)
         
-        # If only 2 samples, either 1 or 2 clusters
+        # If only 2 samples, check similarity
         if n_samples == 2:
-            # Check if they're similar enough to be in one cluster
             similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-            if similarity > 0.7:  # High similarity = 1 cluster
+            print(f"  Pair similarity: {similarity:.3f}")
+            if similarity > 0.65:  # High similarity = 1 cluster
                 return 1, np.zeros(2, dtype=int)
             else:
                 return 2, np.array([0, 1])
         
-        # Try different numbers of clusters and find the best
-        max_k = min(max_clusters, n_samples - 1)  # Can't have more clusters than samples-1
+        # If 3 samples, try k=1, 2, 3
+        if n_samples == 3:
+            # Check pairwise similarities
+            sim_matrix = cosine_similarity(embeddings)
+            sim_01 = sim_matrix[0][1]
+            sim_02 = sim_matrix[0][2]
+            sim_12 = sim_matrix[1][2]
+            
+            # If two are very similar and third is different, use 2 clusters
+            if (sim_01 > 0.7 and sim_02 < 0.5 and sim_12 < 0.5) or \
+               (sim_02 > 0.7 and sim_01 < 0.5 and sim_12 < 0.5) or \
+               (sim_12 > 0.7 and sim_01 < 0.5 and sim_02 < 0.5):
+                # Two similar, one different
+                if sim_01 > 0.7:
+                    return 2, np.array([0, 0, 1])
+                elif sim_02 > 0.7:
+                    return 2, np.array([0, 1, 0])
+                else:
+                    return 2, np.array([0, 1, 1])
+            # If all similar, 1 cluster
+            elif sim_01 > 0.6 and sim_02 > 0.6 and sim_12 > 0.6:
+                return 1, np.zeros(3, dtype=int)
+            # Otherwise, try k=2 and k=3
+            else:
+                best_score = -1
+                best_k = 2
+                best_labels = np.array([0, 0, 1])
+                
+                for k in [2, 3]:
+                    try:
+                        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+                        labels = kmeans.fit_predict(embeddings)
+                        score = silhouette_score(embeddings, labels)
+                        print(f"  k={k}: silhouette score = {score:.3f}")
+                        if score > best_score:
+                            best_score = score
+                            best_k = k
+                            best_labels = labels
+                    except:
+                        continue
+                
+                return best_k, best_labels
+        
+        # For 4+ samples, try different k values
+        max_k = min(max_clusters, n_samples - 1)
         best_score = -1
         best_k = 1
         best_labels = np.zeros(n_samples, dtype=int)
         
         for k in range(2, max_k + 1):
             try:
-                kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+                kmeans = KMeans(n_clusters=k, random_state=42, n_init=20, max_iter=300)
                 labels = kmeans.fit_predict(embeddings)
-                
-                # Calculate silhouette score (higher is better, range -1 to 1)
                 score = silhouette_score(embeddings, labels)
                 print(f"  k={k}: silhouette score = {score:.3f}")
                 
@@ -335,22 +410,21 @@ async def cluster_papers(project_id: str, authorization: str = Header(None)):
                 print(f"  k={k}: error - {e}")
                 continue
         
-        # If best score is very low, maybe everything should be in one cluster
-        if best_score < 0.1:
+        # If best score is very low, check if 1 cluster makes sense
+        if best_score < 0.15:
             print(f"  Low silhouette score ({best_score:.3f}), checking if 1 cluster is better...")
-            # Check average pairwise similarity
             sim_matrix = cosine_similarity(embeddings)
             avg_similarity = (sim_matrix.sum() - n_samples) / (n_samples * (n_samples - 1))
-            if avg_similarity > 0.6:  # All papers are quite similar
+            if avg_similarity > 0.65:  # All papers are quite similar
                 print(f"  High average similarity ({avg_similarity:.3f}), using 1 cluster")
                 return 1, np.zeros(n_samples, dtype=int)
         
         print(f"  Optimal: k={best_k} with score={best_score:.3f}")
         return best_k, best_labels
     
-    # Find optimal clustering
+    # Find optimal clustering using hybrid embeddings
     print(f"Finding optimal clusters for {n_papers} papers...")
-    n_clusters, cluster_labels = find_optimal_clusters(embeddings)
+    n_clusters, cluster_labels = find_optimal_clusters(hybrid_embeddings)
     
     # Update papers with cluster IDs
     for i, paper in enumerate(papers_with_embeddings):
@@ -442,28 +516,36 @@ async def get_graph_data(project_id: str, authorization: str = Header(None)):
             "y": float(positions[i][1])
         })
     
-    # Compute similarity edges
+    # Compute similarity edges - ONLY connect papers within the SAME cluster
     similarity_matrix = cosine_similarity(embeddings)
     edges = []
-    threshold = 0.3  # Lower threshold to show more connections
     
-    for i in range(len(papers_with_embeddings)):
-        for j in range(i + 1, len(papers_with_embeddings)):
-            similarity = float(similarity_matrix[i][j])
-            paper_i = papers_with_embeddings[i]
-            paper_j = papers_with_embeddings[j]
-            
-            # Only connect papers in DIFFERENT clusters if similarity is above threshold
-            cluster_i = paper_i.get('cluster_id')
-            cluster_j = paper_j.get('cluster_id')
-            different_cluster = (cluster_i is not None and cluster_j is not None and 
-                               cluster_i != cluster_j)
-            
-            if similarity > threshold and different_cluster:
+    # Group papers by cluster
+    cluster_groups = {}
+    for i, paper in enumerate(papers_with_embeddings):
+        cluster_id = paper.get('cluster_id', 0)
+        if cluster_id not in cluster_groups:
+            cluster_groups[cluster_id] = []
+        cluster_groups[cluster_id].append(i)
+    
+    # For each cluster, connect ALL papers within that cluster
+    for cluster_id, paper_indices in cluster_groups.items():
+        # Connect every pair of papers in this cluster
+        for idx_i in range(len(paper_indices)):
+            for idx_j in range(idx_i + 1, len(paper_indices)):
+                i = paper_indices[idx_i]
+                j = paper_indices[idx_j]
+                
+                similarity = float(similarity_matrix[i][j])
+                paper_i = papers_with_embeddings[i]
+                paper_j = papers_with_embeddings[j]
+                
+                # Always connect papers in the same cluster (no threshold)
+                # Line thickness will be based on similarity
                 edges.append({
                     "source": paper_i['id'],
                     "target": paper_j['id'],
-                    "similarity": similarity
+                    "similarity": max(similarity, 0.1)  # Minimum 0.1 for visibility
                 })
     
     # Get cluster summaries
