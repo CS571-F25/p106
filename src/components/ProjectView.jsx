@@ -205,14 +205,14 @@ function ProjectView() {
     <Container fluid className="py-4 px-4" style={{ background: 'var(--color-bg)', minHeight: 'calc(100vh - 76px)' }}>
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
-          <Link to="/dashboard" className="text-decoration-none d-inline-flex align-items-center mb-2" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>
+          <Link to="/dashboard" className="text-decoration-none d-inline-flex align-items-center mb-2" style={{ color: '#5A4334', fontWeight: 500 }}>
             ← Back to Projects
           </Link>
           <h1 style={{ marginBottom: '0.25rem' }}>{project?.name}</h1>
           {project?.description && <p className="text-muted mb-0">{project.description}</p>}
         </div>
         <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>+ Upload PDF</Button>
+          <Button variant="primary" onClick={() => setShowUploadModal(true)} style={{ background: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}>+ Upload PDF</Button>
           <Button variant="primary" onClick={handleCluster} disabled={clustering || papers.length < 2}>
             {clustering ? <><Spinner size="sm" className="me-2" />Analyzing...</> : 'Analyze & Cluster'}
           </Button>
@@ -262,17 +262,26 @@ function ProjectView() {
                 <Accordion defaultActiveKey={clusterIds[0]} alwaysOpen>
                   {clusterIds.map((clusterId) => (
                     <Accordion.Item key={clusterId} eventKey={clusterId} style={{ borderLeft: `4px solid ${clusterColors[clusterId % clusterColors.length]}`, marginBottom: '0.75rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-                      <Accordion.Header>
-                        <div className="d-flex justify-content-between align-items-center w-100 pe-2">
-                          <div className="d-flex align-items-center">
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '0.75rem 1rem', borderBottom: '1px solid var(--color-border)' }}>
+                        <Accordion.Header style={{ flex: 1, margin: 0, padding: 0, border: 'none' }}>
+                          <div className="d-flex align-items-center" style={{ width: '100%' }}>
                             <Badge className="me-2" style={{ backgroundColor: clusterColors[clusterId % clusterColors.length], minWidth: '24px' }}>{papersByCluster[clusterId].length}</Badge>
                             <span style={{ fontWeight: 500, fontSize: '0.95rem' }}>{getClusterName(clusterId).substring(0, 30)}{getClusterName(clusterId).length > 30 ? '...' : ''}</span>
                           </div>
-                          <Button variant="link" size="sm" className="p-0 ms-2" style={{ color: 'var(--color-text-muted)' }} onClick={(e) => { e.stopPropagation(); handleRenameCluster(clusterId); }} aria-label={`Rename cluster ${getClusterName(clusterId)}`} title="Rename cluster">
-                            Edit
-                          </Button>
-                        </div>
-                      </Accordion.Header>
+                        </Accordion.Header>
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          className="p-0 ms-2" 
+                          style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRenameCluster(clusterId); }} 
+                          aria-label={`Rename cluster ${getClusterName(clusterId)}`} 
+                          title="Rename cluster"
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          Edit
+                        </Button>
+                      </div>
                       <Accordion.Body className="pt-2 pb-3">
                         {papersByCluster[clusterId].map((paper) => (
                           <div key={paper.id} className="paper-item d-flex justify-content-between align-items-start" onClick={() => handlePaperClick(paper)} style={{ cursor: 'pointer' }}>
